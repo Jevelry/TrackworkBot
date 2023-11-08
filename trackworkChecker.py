@@ -8,7 +8,7 @@ def correctDates(date):
     now = datetime.now(timezone('Australia/Sydney'))
     next_4_days = now + timedelta(days=4)
     next_5_days = now + timedelta(days=5)
-    return (next_4_days <= date < next_5_days) and date.weekday() >=4
+    return (next_4_days <= date < next_5_days)
 
 # Check if alerts refer to trackwork service
 def correctAlerts(entry):
@@ -18,8 +18,11 @@ def correctAlerts(entry):
 def includesRelatedLines(entry):
     for trainLine in entry['informedEntity']:
         if trainLine['routeId'][0:3] == 'NSN':
+            alertMessage = entry['headerText']['translation'][0]['text']
             filterText = "T1 North Shore Line:"
-            if filterText in entry['headerText']['translation'][0]['text']:
+            if filterText in alertMessage:
+                return True
+            if "Hornsby" in alertMessage and "Strathfield" in alertMessage:
                 return True
     return False
 
@@ -32,13 +35,14 @@ def getNewTrackWork():
     output = response.json()
     if noTrackWork(output):
         return None
+    res = []
     for entry in output['entity']:
         startTime = int(entry['alert']['activePeriod'][0]['start'])
         dateTime = datetime.fromtimestamp(startTime, timezone('Australia/Sydney'))
         if (correctDates(dateTime) and correctAlerts(entry) and includesRelatedLines(entry['alert'])):
             # Return the trackwork message
-            return entry['alert']['descriptionText']['translation'][0]['text']
-    return None
+            res.apend(entry['alert']['descriptionText']['translation'][0]['text'])
+    return res if res else None
 
 def getNewMetroTrackWork():
     api_url = "https://api.transport.nsw.gov.au/v2/gtfs/alerts/metro?format=json"

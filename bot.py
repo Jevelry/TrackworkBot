@@ -1,6 +1,7 @@
 import discord
 import trackworkChecker
 from discord.ext import tasks
+from pytz import timezone
 import config
 from datetime import datetime
 
@@ -14,12 +15,14 @@ async def on_ready():
  
 @tasks.loop(hours=24)
 async def getNewTrackWork():
-    NorthShoreMessage = trackworkChecker.getNewTrackWork()
+    NorthShoreMessages = trackworkChecker.getNewTrackWork()
     MetroMessaage = trackworkChecker.getNewMetroTrackWork()
-    await client.get_channel(1076339832093159527).send(f'Checked at {datetime.now()}')
+    now = datetime.now(timezone('Australia/Sydney'))
+    await client.get_channel(1076339832093159527).send(f'Checked on {now.date()}')
     # Using Channel id for my server
-    if NorthShoreMessage:
-        await client.get_channel(1076339832093159527).send(f'@everyone {NorthShoreMessage}')
+    if NorthShoreMessages:
+        for message in NorthShoreMessages:
+            await client.get_channel(1076339832093159527).send(f'@everyone {message}')
     if MetroMessaage:
         await client.get_channel(1076339832093159527).send(f'@everyone {MetroMessaage}')
 
