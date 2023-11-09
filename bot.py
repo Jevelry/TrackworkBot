@@ -22,9 +22,9 @@ async def getNewTrackWork():
     # Using Channel id for my server
     if NorthShoreMessages:
         for message in NorthShoreMessages:
-            await client.get_channel(1076339832093159527).send(f'@everyone {message}')
+            await client.get_channel(1076339832093159527).send(f'@here {message}')
     if MetroMessaage:
-        await client.get_channel(1076339832093159527).send(f'@everyone {MetroMessaage}')
+        await client.get_channel(1076339832093159527).send(f'@here {MetroMessaage}')
 
 client.run(f'{config.bot_token}')
 
